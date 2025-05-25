@@ -12,6 +12,7 @@ services:
       DB_PASSWORD: mypassword
       DB_HOST: db
       DJANGO_DEBUG: "True"
+      SECRET_KEY: "django-insecure-(-bo_#84mrk++(05j_b33f=gh3i7eq-xv3o+vo^a8eqhz8zcg"
   db:
     image: postgres
     environment:

@@ -15,6 +15,8 @@ RUN apt-get update && apt-get install -y \
 
 # Install Poetry
 RUN curl -sSL https://install.python-poetry.org | python3 -
+ENV PATH="/root/.local/bin:$PATH"
+RUN poetry self add poetry-plugin-export
 
 # Use Poetry to install the project dependencies
 RUN $HOME/.local/bin/poetry export -f requirements.txt --output requirements.txt
@@ -30,6 +32,7 @@ COPY --from=public.ecr.aws/awsguru/aws-lambda-adapter:0.6.4 /lambda-adapter /opt
 COPY --from=builder /app/requirements.txt ./
 RUN python -m pip install -r requirements.txt
 COPY ./polls/ ./
+ENV DJANGO_DEBUG=True
 RUN python manage.py collectstatic --noinput
 
 EXPOSE 8000

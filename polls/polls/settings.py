@@ -26,14 +26,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
-try :
-    SECRET_KEY =  parameters.get_secret(os.environ.get("DJANGO_SECRET_KEY"))
-except Exception:
-    SECRET_KEY = "django-insecure-(-bo_#84mrk++(05j_b$33f=gh3i7eq-xv3o+vo^a8eqhz8zcg"
-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get("DJANGO_DEBUG", "False").lower() == "true"
 
+if DEBUG:
+    SECRET_KEY = os.environ.get("SECRET_KEY")
+else:
+    try :
+        SECRET_KEY =  parameters.get_secret(os.environ.get("DJANGO_SECRET_KEY"))
+    except Exception:
+        raise RuntimeError("NO DJANGO_SECRET_KEY")
 
 ALLOWED_HOSTS: List[str] = []
 if os.environ.get("DJANGO_ALLOWED_HOSTS"):
@@ -85,10 +87,13 @@ WSGI_APPLICATION = "polls.wsgi.application"
 
 
 # Database
-try :
-    password =  parameters.get_secret(os.environ.get("SSM_PASSWORD_NAME"))
-except Exception:
+if DEBUG:
     password = os.environ.get("DB_PASSWORD")
+else:
+    try :
+        password =  parameters.get_secret(os.environ.get("SSM_PASSWORD_NAME"))
+    except Exception:
+        raise RuntimeError("NO DB_PASSWORD")
 
 DATABASES = {
     "default": {
@@ -124,9 +129,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
-LANGUAGE_CODE = "en-us"
+LANGUAGE_CODE = 'ja'
 
-TIME_ZONE = "UTC"
+TIME_ZONE = 'Asia/Tokyo'
 
 USE_I18N = True
 

@@ -1,162 +1,116 @@
-[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![security: bandit](https://img.shields.io/badge/security-bandit-yellow.svg)](https://github.com/PyCQA/bandit)
+# IoT Django App on AWS 🏠🔓
 
+A serverless Django backend for visualizing door sensor (open/close) status, powered by Raspberry Pi, Docker, and AWS Lambda.  
 
-<!-- PROJECT LOGO -->
-<br />
-<div align="center">
-    <img width="256" height="256" src="https://user-images.githubusercontent.com/110536677/230987784-c8e55f0e-4434-43b4-8b41-08a8ea8cec08.png" alt="">
+---
 
-<h3 align="center">Execute Python Django within AWS Lambda</h3>
+> ⚠️ This project is based on the open-source repository [fun-with-serverless/serverless-django](https://github.com/fun-with-serverless/serverless-django) by [@fun-with-serverless](https://github.com/fun-with-serverless), which I used as a learning resource and modified as part of my personal study and portfolio development.
+> Licensed under the [MIT License](LICENSE).
 
-  <p align="center">
-   This repository contains a Python Django application designed to run seamlessly inside an AWS Lambda environment, leveraging the AWS Lambda Adapter extension. The application is built to efficiently handle serverless workloads and connect to a PostgreSQL database, providing a scalable, cost-effective, and high-performance solution for modern web applications. By using the AWS Lambda Adapter, the Django app can utilize the event-driven nature of Lambda while maintaining its traditional web application structure.
-    </p>
-    <br />
-    <a href="https://github.com/aws-hebrew-book/reminders/issues">Report Bug</a>
-    ·
-    <a href="https://github.com/aws-hebrew-book/reminders/issues">Request Feature</a>
-  </p>
-</div>
+---
 
+## 📌 Overview
 
-<!-- TABLE OF CONTENTS -->
-<details>
-  <summary>Table of Contents</summary>
-  <ol>
-    <li>
-      <a href="#high-level-architecture">High level architecture</a>
-    </li>
-    <li>
-      <a href="#getting-started">Getting Started</a>
-      <ul>
-        <li><a href="#prerequisites">Prerequisites</a></li>
-        <li><a href="#installation">Installation</a></li>
-        <li><a href="#database-migration">Database migration</a></li>
-        <li><a href="#running-the-app-locally">Running the app locally</a></li>
-      </ul>
-    </li>
-      <li><a href="#behind-the-scenes">Behind the scenes</a></li>
-    <li><a href="#contributing">Contributing</a></li>
-    <li><a href="#license">License</a></li>
-    <li><a href="#contact">Contact</a></li>
-  </ol>
-</details>
+- ✅ Door status (open/close) collected via **Raspberry Pi GPIO**
+- ✅ Sent via MQTT to AWS Lambda
+- ✅ Stored in PostgreSQL and visualized through Django Admin UI
+- ✅ Deployable using **AWS SAM**
 
-## High level architecture
+---
 
-<div align="center">
-    <img src="https://user-images.githubusercontent.com/110536677/230990815-91c355a5-9f72-4039-9b3f-ba1090b4839d.png" alt="Architecture diagram">
-</div>
+## 📷 Use Case: "Home Monitoring System"
 
+- Detect door open/close state with a magnetic sensor
+- Send state changes to a Django backend via Lambda
+- Monitor logs from anywhere
+---
 
-## Getting started
-### Prerequisites
-* Make sure you have [AWS SAM](https://aws.amazon.com/serverless/sam/) installed
-* An AWS enviornment.
-* Python 3.9 (I highly recommend using [pyenv](https://github.com/pyenv/pyenv#installation)).
-* [Python Poetry](https://python-poetry.org/docs/#installation)
-* Add [Poe the Poet](https://github.com/nat-n/poethepoet) to Poetry by running `poetry self add 'poethepoet[poetry_plugin]'`
+## 🧰 Tech Stack
 
+| Layer             | Technology                              |
+|------------------|------------------------------------------|
+| IoT Device       | Raspberry Pi (GPIO) + Python script      |
+| Backend          | Django, Gunicorn                         |
+| Containerization | Docker, Docker Compose                   |
+| Database         | PostgreSQL                               |
+| Deployment       | AWS Lambda (Container Image), SAM        |
+| Infrastructure   | AWS CloudFormation, Secrets Manager      |
+| DevOps           | AWS SAM CLI, GitHub                      |
 
-### Installation
-* Clone this repository.
-* The application uses AWS SAM as IaC framework. 
-* Run `poetry install` to install relevant dependencies.
-* Run `sam build` and then `sam deploy --guided`. You can use the defaults, the only choice you have to take is the [KeyPair name](https://us-east-1.console.aws.amazon.com/ec2/home?region=us-east-1#KeyPairs:). Take note that the default EC2 AMI is located in the `us-east-1` region. If you choose to change the region, ensure that you also update the AMI accordingly.
-* Upon completing the installation, you will receive the Lambda endpoint URL and the bastion host's machine details.
+---
 
-### Database migration
-Like any DJango application there are some minimal migration steps you need to run - 1. DB migration and 2. Admin user creation. In order to run the relevant commands you need to ssh into the bastion first.
-* `ssh -i "MyPrivateKey.pem" ec2-user@ec2-domain`
-* Run the following script the install the relevant packages
-```
-git clone https://github.com/aws-hebrew-book/serverless-django.git
-curl https://pyenv.run | bash
-echo 'export PYENV_ROOT="/$HOME/.pyenv"' >> ~/.bashrc
-echo 'command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc
-echo 'eval "$(pyenv init -)"' >> ~/.bashrc
-source ~/.bashrc
-pyenv install 3.9
-pyenv global 3.9
-curl -sSL https://install.python-poetry.org | python3 -
-cd serverless-django
-echo 'export PATH="/$HOME/.local/bin:$PATH"' >> ~/.bashrc
-poetry install --only main
-poetry self add 'poethepoet[poetry_plugin]'
-poetry shell
-```
-* The migration script requires DB user, password and host. The user is the one you supplied during `sam deploy --guided`, the host is one of AWS SAM outputs and the password is stored in the [SecretManager console](https://us-east-1.console.aws.amazon.com/secretsmanager/secret?name=DJangoRDSCredentials&region=us-east-1)
-<img width="1302" alt="image" src="https://user-images.githubusercontent.com/110536677/231000112-beb6dae3-5bc9-4d3a-9494-e544a913f805.png">
+## ⚙️ Architecture
 
-* Navigate to the `polls` directory
-* Run `DB_USER=root DB_PASSWORD=<pass> DB_HOST=<host> python manage.py migrate`. This will create relevant tables.
-* Next is creating admin user. Run `DB_USER=root DB_PASSWORD=<pass> DB_HOST=<host> python manage.py createsuperuser`.
-* Need to add the supported hosts otherwise django will fail with 400. Add an environment variable to your Lambda named `DJANGO_ALLOWED_HOSTS` and set its value to the lambda URL host 
-* Try `https://<lambda host>/admin` and login using the super user credentials you just created.
+```text
+[Door Sensor] → [Raspberry Pi] → [MQTT] → [Lambda (Django)]
+                                                      ↓
+                                               [RDS: PostgreSQL]
 
-### Running the app locally
-* The application uses `docker-compose` to run the application locally.
-* Run `docker-compose up` and you are good to go.
-
-## Behind the scenes
-### Lambda Web Adapter
-Django for Python operates differently from AWS Lambda, as Django functions as a traditional web server that waits for external connections, while Lambda is event-based. To bridge the gap between these two operation types, the [Lambda Web Adapter](https://github.com/awslabs/aws-lambda-web-adapter) extension is required. This extension serves as a mediator, translating the http request coming from API Gateway or Lambda URL into a web request that is done against the internal guinicorn process.
-![image](https://user-images.githubusercontent.com/110536677/231006553-291de4a2-44a8-4622-bcef-fb7cdb894bc2.png)
-
-### LWA -> Gunicorn -> Django
-[Gunicorn](https://gunicorn.org/), short for Green Unicorn, is a Python Web Server Gateway Interface (WSGI) HTTP server that serves Python web applications by managing the communication between the web server and the application.
-
-Django does not include a production-ready web server by default. The built-in development server provided by Django is intended for local development and testing, but it is not designed to handle the performance requirements and security considerations of production environments. That’s where Gunicorn comes in. By integrating Gunicorn with a Django application, developers can deploy their web applications in production.
-
-AWS Lambda does not provide a direct web application interface; instead, services like API Gateway and Lambda URL convert HTTP requests into Lambda event payloads. Gunicorn, however, is not designed to communicate in this format. This is where LWA proves valuable, as it acts as a bridge, translating Lambda events received from API Gateway and Lambda URL into HTTP requests compatible with Gunicorn.
-
-Due to AWS Lambda’s design, which allows processing of only one request at a time, it is necessary to configure Gunicorn with a single listener when setting it up for use with Lambda.
-```
-CMD ["gunicorn", "polls.wsgi:application", "-w=1", "-b=0.0.0.0:8000"]
 ```
 
-### Consuming AWS Services
-When migrating an application to the cloud, it presents an excellent opportunity to leverage other cloud services. In this example, we utilize AWS Secret Manager to store the database password and the Django secret key. To retrieve the secret values and integrate them into the Django app, we employ [Lambda Power Tools](https://awslabs.github.io/aws-lambda-powertools-python/2.12.0/utilities/parameters/#fetching-secrets) , simplifying the process of securely accessing these sensitive pieces of information.
+## 🚀 Quick Start (Local Dev)
+```
+git clone https://github.com/yourname/IoT-django-app-on-aws.git
+docker-compose up
+```
+Then open:
+http://localhost:8000/admin
 
-One of the challenges when using traditional web applications that rely on SQL databases is the requirement to be within a VPC. By default, a Lambda function within a private subnet cannot access the internet and, therefore, cannot access AWS services. There are two ways to address this issue:
+## ☁️ Deploying to AWS
+```
+sam build --use-container
+sam deploy --guided
+```
+> You'll need:  
+> - A valid KeyPair name  
+> - An S3 bucket (or use a managed one)  
+> - AWS credentials configured (`aws configure`)  
 
-1. Utilize an Internet Gateway and NAT to enable compute resources in the private subnet to access the internet.
-2. Use [VPC endpoints](https://docs.aws.amazon.com/whitepapers/latest/aws-privatelink/what-are-vpc-endpoints.html), as Secret Manager supports [VPC endpoints](https://docs.aws.amazon.com/secretsmanager/latest/userguide/vpc-endpoint-overview.html).
-The current solution opts for the first option due to its simplicity; however, it is less secure because it exposes the Lambda function to the internet rather than limiting access to specific AWS services.
+## 🔐 Environment Variables (excerpt)
 
-### Serving Static Files
-Django is an all-inclusive framework that not only handles backend processes but also supports frontend server-side rendering. This means that web pages can be rendered using the framework, even when developing Single Page Applications (SPAs) and using Django as a REST backend. One issue that requires attention is static file handling, such as serving JS or CSS files.
-<img width="950" alt="image" src="https://user-images.githubusercontent.com/110536677/231078369-42bd25e9-2c1b-450c-9a55-a51624a8b354.png">
+| Variable               | Description                        |
+|------------------------|------------------------------------|
+| `DB_USER`              | PostgreSQL user                    |
+| `DB_PASSWORD`          | DB password (in Secrets Manager)   |
+| `DJANGO_SECRET_KEY`    | Django secret (in Secrets Manager) |
+| `DJANGO_ALLOWED_HOSTS` | Lambda URL host                    |
 
+---
 
-AWS recommends managing static files using S3 and CloudFront. One approach is to use [django-storages](https://github.com/jschneier/django-storages), define S3 as a storage backend, and then set the S3 as the source for the CloudFront distribution. Alternatively, you can serve static files directly through the web server (using Gunicorn and the AWS Lambda Adapter), which is simpler and, in cases where only the admin panel needs support, is often preferable. To serve static files directly through the web server, simply use Django [WhiteNoise](https://whitenoise.readthedocs.io/en/latest/) and add it as middleware.
+## 📂 Folder Structure
 
+```text
+.
+├── Dockerfile
+├── docker-compose.yml
+├── pyproject.toml
+├── poetry.lock
+├── polls/                   # Django app
+├── template.yaml            # AWS SAM template
+└── README.md
+```
 
-## Contributing
+## 📝 Original Work and License
 
-Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+This project is derived from:
 
-If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
-Don't forget to give the project a star! Thanks again!
+> 📦 [fun-with-serverless/serverless-django](https://github.com/fun-with-serverless/serverless-django)  
+> by [@fun-with-serverless](https://github.com/fun-with-serverless)
 
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+Licensed under the **MIT License**.  
+See [`LICENSE`](LICENSE) for full text.
 
+---
 
-<!-- LICENSE -->
-## License
+## 🙋‍♂️ Author
 
-Distributed under the Apache License Version 2.0 License. See `LICENSE` for more information.
+**Masayoshi Niki**  
+IoT Engineer
+GitHub: [@Nikitty1226](https://github.com/Nikitty1226)
 
-<!-- CONTACT -->
-## Contact
+---
 
-Efi Merdler-Kravitz - [@TServerless](https://twitter.com/TServerless)
+## 📄 License
 
-
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
+Distributed under the MIT License.  
+See [`LICENSE`](LICENSE) for details.

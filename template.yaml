@@ -10,7 +10,7 @@ Parameters:
     Default: root
   bastionAMI:
     Type: String
-    Default: ami-0b5eea76982371e91
+    Default: ami-037843ed9009f7d41
   keyPair:
     Type: String
     Default: MyPrivateKey
@@ -52,7 +52,7 @@ Resources:
     Properties:
       VpcId: !Ref VPC
       CidrBlock: 10.0.1.0/24
-      AvailabilityZone: us-east-1a
+      AvailabilityZone: ap-northeast-1a
       MapPublicIpOnLaunch: true
       Tags:
         - Key: Name
@@ -62,7 +62,7 @@ Resources:
     Properties:
       VpcId: !Ref VPC
       CidrBlock: 10.0.2.0/24
-      AvailabilityZone: us-east-1a
+      AvailabilityZone: ap-northeast-1a
       Tags:
         - Key: Name
           Value: django PrivateSubnet1
@@ -71,10 +71,10 @@ Resources:
     Properties:
       VpcId: !Ref VPC
       CidrBlock: 10.0.4.0/24
-      AvailabilityZone: us-east-1b
+      AvailabilityZone: ap-northeast-1c
       Tags:
         - Key: Name
-          Value: django PrivateSubnet1
+          Value: django PrivateSubnet2
   BastionSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -125,7 +125,7 @@ Resources:
       GatewayId: !Ref InternetGateway
 
   
-  PublicSubne1tRouteTableAssociation:
+  PublicSubnet1RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       SubnetId: !Ref PublicSubnet1
