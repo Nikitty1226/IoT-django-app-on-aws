@@ -32,7 +32,8 @@ COPY --from=public.ecr.aws/awsguru/aws-lambda-adapter:0.6.4 /lambda-adapter /opt
 COPY --from=builder /app/requirements.txt ./
 RUN python -m pip install -r requirements.txt
 COPY ./polls/ ./
-ENV DJANGO_DEBUG=True
+ARG DJANGO_DEBUG
+ENV DJANGO_DEBUG=$DJANGO_DEBUG
 RUN python manage.py collectstatic --noinput
 
 EXPOSE 8000

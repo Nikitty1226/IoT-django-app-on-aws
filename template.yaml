@@ -84,7 +84,7 @@ Resources:
         - IpProtocol: tcp
           FromPort: 22
           ToPort: 22
-          CidrIp: 0.0.0.0/0
+          CidrIp: 152.165.123.1/24
   
   PublicRouteTable:
     Type: AWS::EC2::RouteTable
@@ -139,6 +139,7 @@ Resources:
           Value: django Bastion
       ImageId: !Ref bastionAMI
       InstanceType: t2.micro
+      IamInstanceProfile: !Ref InstanceProfile
       UserData:
         'Fn::Base64': !Sub |
           #!/bin/bash
@@ -153,6 +154,33 @@ Resources:
       SubnetId: !Ref PublicSubnet1
       KeyName: !Ref keyPair
     DependsOn: RDSInstance
+
+  InstanceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ec2.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: SecretsManagerAccessPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - secretsmanager:GetSecretValue
+                Resource: 
+                  - !Ref DJangoSecretKey
+                  - !Ref DBCredentials
+  InstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles:
+        - !Ref InstanceRole
       
   # RDS related resources
   RDSSecurityGroup:
@@ -164,7 +192,11 @@ Resources:
         - IpProtocol: tcp
           FromPort: 5432
           ToPort: 5432
-          CidrIp: 0.0.0.0/0
+          SourceSecurityGroupId: !Ref DjangoLambdaSecurityGroup
+        - IpProtocol: tcp
+          FromPort: 5432
+          ToPort: 5432
+          SourceSecurityGroupId: !Ref BastionSecurityGroup
   RDSInstance:
     Type: AWS::RDS::DBInstance
     Properties:
@@ -209,9 +241,13 @@ Resources:
       SecurityGroupIngress: []
       SecurityGroupEgress:
         - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
           CidrIp: 0.0.0.0/0
-          FromPort: 80
+        - IpProtocol: tcp
+          FromPort: 5432
           ToPort: 5432
+          CidrIp: 0.0.0.0/0
 
   PollsApp:
     Type: AWS::Serverless::Function
@@ -225,8 +261,13 @@ Resources:
             - !Ref PrivateSubnet1
             - !Ref PrivateSubnet2
         Policies:
-          - AWSSecretsManagerGetSecretValuePolicy:
-              SecretArn: !Ref DBCredentials
+          - Statement:
+              - Effect: Allow
+                Action:
+                  - secretsmanager:GetSecretValue
+                Resource:
+                  - !Ref DBCredentials
+                  - !Ref DJangoSecretKey
         Environment:
             Variables:
               PORT: 8000
@@ -235,12 +276,15 @@ Resources:
               DJANGO_SECRET_KEY: !Ref DJangoSecretKey
               DJANGO_DEBUG: "False"
               DB_USER: !Ref dbUserName
+              DJANGO_ALLOWED_HOSTS: nvnxvyxe277j7dgj2k3rx6hyqy0dftga.lambda-url.ap-northeast-1.on.aws
         FunctionUrlConfig:
             AuthType: NONE
     Metadata:
         DockerTag: v1
         DockerContext: ./
         Dockerfile: Dockerfile
+        DockerBuildArgs:
+          DJANGO_DEBUG: "true"
         
 Outputs:
     PollsAppFunctionUrlEndpoint:

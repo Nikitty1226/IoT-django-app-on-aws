@@ -1,4 +1,4 @@
-# IoT Django App on AWS 🏠🔓
+# IoT Django App on AWS
 
 A serverless Django backend for visualizing door sensor (open/close) status, powered by Raspberry Pi, Docker, and AWS Lambda.  
 
@@ -9,23 +9,23 @@ A serverless Django backend for visualizing door sensor (open/close) status, pow
 
 ---
 
-## 📌 Overview
+## Overview
 
-- ✅ Door status (open/close) collected via **Raspberry Pi GPIO**
-- ✅ Sent via MQTT to AWS Lambda
-- ✅ Stored in PostgreSQL and visualized through Django Admin UI
-- ✅ Deployable using **AWS SAM**
+- Door status (open/close) collected via **Raspberry Pi GPIO**
+- Sent via MQTT to AWS Lambda
+- Stored in PostgreSQL and visualized through Django Admin UI
+- Deployable using **AWS SAM**
 
 ---
 
-## 📷 Use Case: "Home Monitoring System"
+## Use Case: "Home Monitoring System"
 
 - Detect door open/close state with a magnetic sensor
 - Send state changes to a Django backend via Lambda
 - Monitor logs from anywhere
 ---
 
-## 🧰 Tech Stack
+## Tech Stack
 
 | Layer             | Technology                              |
 |------------------|------------------------------------------|
@@ -39,7 +39,7 @@ A serverless Django backend for visualizing door sensor (open/close) status, pow
 
 ---
 
-## ⚙️ Architecture
+## Architecture
 
 ```text
 [Door Sensor] → [Raspberry Pi] → [MQTT] → [Lambda (Django)]
@@ -48,17 +48,17 @@ A serverless Django backend for visualizing door sensor (open/close) status, pow
 
 ```
 
-## 🚀 Quick Start (Local Dev)
+## Quick Start (Local Dev)
 ```
 git clone https://github.com/yourname/IoT-django-app-on-aws.git
-docker-compose up
+DJANGO_DEBUG=true docker-compose up 
 ```
 Then open:
 http://localhost:8000/admin
 
-## ☁️ Deploying to AWS
+## Deploying to AWS
 ```
-sam build --use-container
+sam build
 sam deploy --guided
 ```
 > You'll need:  
@@ -66,7 +66,7 @@ sam deploy --guided
 > - An S3 bucket (or use a managed one)  
 > - AWS credentials configured (`aws configure`)  
 
-## 🔐 Environment Variables (excerpt)
+## Environment Variables (excerpt)
 
 | Variable               | Description                        |
 |------------------------|------------------------------------|
@@ -77,7 +77,7 @@ sam deploy --guided
 
 ---
 
-## 📂 Folder Structure
+## Folder Structure
 
 ```text
 .
@@ -90,11 +90,11 @@ sam deploy --guided
 └── README.md
 ```
 
-## 📝 Original Work and License
+## Original Work and License
 
 This project is derived from:
 
-> 📦 [fun-with-serverless/serverless-django](https://github.com/fun-with-serverless/serverless-django)  
+> [fun-with-serverless/serverless-django](https://github.com/fun-with-serverless/serverless-django)  
 > by [@fun-with-serverless](https://github.com/fun-with-serverless)
 
 Licensed under the **MIT License**.  
@@ -102,15 +102,15 @@ See [`LICENSE`](LICENSE) for full text.
 
 ---
 
-## 🙋‍♂️ Author
+## Author
 
 **Masayoshi Niki**  
-IoT Engineer
+IoT Engineer<br>
 GitHub: [@Nikitty1226](https://github.com/Nikitty1226)
 
 ---
 
-## 📄 License
+## License
 
 Distributed under the MIT License.  
 See [`LICENSE`](LICENSE) for details.

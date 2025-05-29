@@ -2,7 +2,6 @@
 name = "serverless-django"
 version = "0.1.0"
 description = "Using the Lambda Web Adapter with a Django application"
-authors = ["Efi MK <efi.merdler@gmail.com>"]
 license = "Apache License Version 2.0, January 2004"
 readme = "README.md"
 
@@ -12,7 +11,6 @@ django = "^4.2"
 gunicorn = "^20.1.0"
 whitenoise = "^6.4.0"
 psycopg2-binary = "^2.9.6"
-urllib3 = "<2.0"
 aws-lambda-powertools = {extras = ["aws-sdk"], version = "^2.12.0"}
 
 [tool.poe.tasks]
@@ -22,8 +20,6 @@ lint = "ruff --fix ."
 lint_ci = "ruff ."
 mypy = {shell = "cd polls && mypy ."}
 bandit = "bandit -r polls -b bandit-baseline.json"
-run-server = {shell = "cd polls && python manage.py runserver"}
-run-production = {shell = "gunicorn polls.wsgi:application --bind 0.0.0.0:8000"}
 gate = ["black", "lint", "mypy", "bandit"]
 
 
@@ -34,6 +30,7 @@ black = "^23.3.0"
 ruff = "^0.0.261"
 bandit = "^1.7.5"
 django-stubs = {extras = ["compatible-mypy"], version = "^1.16.0"}
+poethepoet = "^0.34.0"
 
 [tool.ruff]
 # Never enforce `E501` (line length violations).

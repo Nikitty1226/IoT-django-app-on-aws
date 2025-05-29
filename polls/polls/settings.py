@@ -32,14 +32,14 @@ DEBUG = os.environ.get("DJANGO_DEBUG", "False").lower() == "true"
 if DEBUG:
     SECRET_KEY = os.environ.get("SECRET_KEY")
 else:
-    try :
-        SECRET_KEY =  parameters.get_secret(os.environ.get("DJANGO_SECRET_KEY"))
+    try:
+        SECRET_KEY = parameters.get_secret(os.environ.get("DJANGO_SECRET_KEY"))
     except Exception:
         raise RuntimeError("NO DJANGO_SECRET_KEY")
 
 ALLOWED_HOSTS: List[str] = []
 if os.environ.get("DJANGO_ALLOWED_HOSTS"):
-    ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS").split(",")
+    ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "").split(",")
 
 
 # Application definition
@@ -90,8 +90,8 @@ WSGI_APPLICATION = "polls.wsgi.application"
 if DEBUG:
     password = os.environ.get("DB_PASSWORD")
 else:
-    try :
-        password =  parameters.get_secret(os.environ.get("SSM_PASSWORD_NAME"))
+    try:
+        password = parameters.get_secret(os.environ.get("SSM_PASSWORD_NAME"))
     except Exception:
         raise RuntimeError("NO DB_PASSWORD")
 
@@ -101,7 +101,7 @@ DATABASES = {
         "NAME": "django",
         "USER": os.environ.get("DB_USER", "root"),
         "PASSWORD": password,
-        "HOST": os.environ.get("DB_HOST", "localhost") ,
+        "HOST": os.environ.get("DB_HOST", "localhost"),
         "PORT": "5432",
     }
 }
@@ -129,9 +129,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
-LANGUAGE_CODE = 'ja'
+LANGUAGE_CODE = "ja"
 
-TIME_ZONE = 'Asia/Tokyo'
+TIME_ZONE = "Asia/Tokyo"
 
 USE_I18N = True
 
