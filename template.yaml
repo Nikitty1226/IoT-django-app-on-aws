@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: >
-  Polls application resources
+  IoT application resources
   
 Parameters:
   dbUserName:
@@ -10,7 +10,7 @@ Parameters:
     Default: root
   bastionAMI:
     Type: String
-    Default: ami-037843ed9009f7d41
+    Default: ami-0545f1f3be5ea1017
   keyPair:
     Type: String
     Default: MyPrivateKey
@@ -249,7 +249,7 @@ Resources:
           ToPort: 5432
           CidrIp: 0.0.0.0/0
 
-  PollsApp:
+  IoTApp:
     Type: AWS::Serverless::Function
     Properties:
         PackageType: Image
@@ -276,7 +276,7 @@ Resources:
               DJANGO_SECRET_KEY: !Ref DJangoSecretKey
               DJANGO_DEBUG: "False"
               DB_USER: !Ref dbUserName
-              DJANGO_ALLOWED_HOSTS: nvnxvyxe277j7dgj2k3rx6hyqy0dftga.lambda-url.ap-northeast-1.on.aws
+              DJANGO_ALLOWED_HOSTS: adlin46md74p5zmszxuf3u76oi0rsqri.lambda-url.ap-northeast-1.on.aws
         FunctionUrlConfig:
             AuthType: NONE
     Metadata:
@@ -287,9 +287,9 @@ Resources:
           DJANGO_DEBUG: "true"
         
 Outputs:
-    PollsAppFunctionUrlEndpoint:
-      Description: "Polls Function URL Endpoint"
-      Value: !GetAtt PollsAppUrl.FunctionUrl
+    IoTAppFunctionUrlEndpoint:
+      Description: "IoT Function URL Endpoint"
+      Value: !GetAtt IoTAppUrl.FunctionUrl
     BastionPublicDns:
       Description: The public DNS of the bastion host
       Value: !GetAtt BastionHost.PublicDnsName

@@ -31,7 +31,7 @@ COPY --from=public.ecr.aws/awsguru/aws-lambda-adapter:0.6.4 /lambda-adapter /opt
 #   && rm -f extension.zip
 COPY --from=builder /app/requirements.txt ./
 RUN python -m pip install -r requirements.txt
-COPY ./polls/ ./
+COPY ./iot/ ./
 ARG DJANGO_DEBUG
 ENV DJANGO_DEBUG=$DJANGO_DEBUG
 RUN python manage.py collectstatic --noinput
@@ -39,4 +39,4 @@ RUN python manage.py collectstatic --noinput
 EXPOSE 8000
 # See https://github.com/awslabs/aws-lambda-web-adapter#usage
 # Start the Django production server
-CMD ["gunicorn", "polls.wsgi:application", "-w=1", "-b=0.0.0.0:8000"]
+CMD ["gunicorn", "iot.wsgi:application", "-w=1", "-b=0.0.0.0:8000"]

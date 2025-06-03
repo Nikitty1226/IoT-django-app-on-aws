@@ -85,7 +85,7 @@ sam deploy --guided
 ├── docker-compose.yml
 ├── pyproject.toml
 ├── poetry.lock
-├── polls/                   # Django app
+├── iot/                   # Django app
 ├── template.yaml            # AWS SAM template
 └── README.md
 ```

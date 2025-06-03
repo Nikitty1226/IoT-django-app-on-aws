@@ -18,8 +18,8 @@ black = "black ."
 black_ci = "black --check ."
 lint = "ruff --fix ."
 lint_ci = "ruff ."
-mypy = {shell = "cd polls && mypy ."}
-bandit = "bandit -r polls -b bandit-baseline.json"
+mypy = {shell = "cd iot && mypy ."}
+bandit = "bandit -r iot -b bandit-baseline.json"
 gate = ["black", "lint", "mypy", "bandit"]
 
 
@@ -42,7 +42,7 @@ ignore = ["E501"]
 [tool.mypy]
 plugins = ["mypy_django_plugin.main"]
 [tool.django-stubs]
-django_settings_module = "polls.polls.settings"
+django_settings_module = "iot.iot.settings"
 
 [build-system]
 requires = ["poetry-core"]

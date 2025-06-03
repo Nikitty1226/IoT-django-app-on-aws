@@ -133,4 +133,4 @@ dmypy.json
 .pyre/
 
 #django
-polls/static/
+iot/static/

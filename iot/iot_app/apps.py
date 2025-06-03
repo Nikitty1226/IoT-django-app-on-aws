@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class PollsAppConfig(AppConfig):
+class IoTAppConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
-    name = "polls_app"
+    name = "iot_app"
