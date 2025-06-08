@@ -17,7 +17,6 @@ Parameters:
 
 Globals:
   Function:
-    Timeout: 150
     Tags:
       'lumigo:auto-trace': 'true'
     
@@ -32,13 +31,13 @@ Resources:
       Tags:
         - Key: Name
           Value: django VPC
-  # EIP:
-  #   Type: AWS::EC2::EIP
-  # NATGateway:
-  #   Type: AWS::EC2::NatGateway
-  #   Properties:
-  #     SubnetId: !Ref PublicSubnet1
-  #     AllocationId: !GetAtt EIP.AllocationId
+  EIP:
+    Type: AWS::EC2::EIP
+  NATGateway:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      SubnetId: !Ref PublicSubnet1
+      AllocationId: !GetAtt EIP.AllocationId
 
   InternetGateway:
     Type: AWS::EC2::InternetGateway
@@ -96,12 +95,12 @@ Resources:
     Properties:
       VpcId: !Ref VPC
   
-  # PrivateRoute:
-  #   Type: AWS::EC2::Route
-  #   Properties:
-  #     RouteTableId: !Ref PrivateRouteTable
-  #     DestinationCidrBlock: 0.0.0.0/0
-  #     NatGatewayId: !Ref NATGateway
+  PrivateRoute:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref NATGateway
 
 
   PrivateSubnet1RouteTableAssociation:
@@ -254,6 +253,7 @@ Resources:
     Properties:
         PackageType: Image
         MemorySize: 1024
+        Timeout: 300
         VpcConfig:
           SecurityGroupIds:
             - !Ref DjangoLambdaSecurityGroup
@@ -285,7 +285,7 @@ Resources:
         Dockerfile: Dockerfile
         DockerBuildArgs:
           DJANGO_DEBUG: "true"
-        
+
 Outputs:
     IoTAppFunctionUrlEndpoint:
       Description: "IoT Function URL Endpoint"

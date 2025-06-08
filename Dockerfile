@@ -1,5 +1,5 @@
 # Use an official Python runtime as a parent image
-FROM python:3.9-slim-buster AS builder
+FROM python:3.12-slim-bookworm AS builder
 
 # Set the working directory to /app
 WORKDIR /app
@@ -21,7 +21,7 @@ RUN poetry self add poetry-plugin-export
 # Use Poetry to install the project dependencies
 RUN $HOME/.local/bin/poetry export -f requirements.txt --output requirements.txt
 
-FROM python:3.9-slim-buster
+FROM python:3.12-slim-bookworm
 
 WORKDIR /var/task
 COPY --from=public.ecr.aws/awsguru/aws-lambda-adapter:0.6.4 /lambda-adapter /opt/extensions/lambda-adapter
@@ -29,6 +29,7 @@ COPY --from=public.ecr.aws/awsguru/aws-lambda-adapter:0.6.4 /lambda-adapter /opt
 # RUN apt-get update && apt-get install -y unzip \
 #   && unzip extension.zip -d /opt \
 #   && rm -f extension.zip
+RUN apt-get update && apt-get install -y libpq-dev gcc
 COPY --from=builder /app/requirements.txt ./
 RUN python -m pip install -r requirements.txt
 COPY ./iot/ ./
