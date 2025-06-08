@@ -7,13 +7,12 @@ readme = "README.md"
 authors = ["Masayoshi Niki <anon@example.com>"]
 
 [tool.poetry.dependencies]
-python = "^3.12"
+python = "^3.9"
 django = "^4.2"
 gunicorn = "^20.1.0"
 whitenoise = "^6.4.0"
 psycopg2-binary = "^2.9.6"
 aws-lambda-powertools = {extras = ["aws-sdk"], version = "^2.12.0"}
-typing_extensions = "^4.11.0"
 
 [tool.poe.tasks]
 black = "black ."
