@@ -1,0 +1,17 @@
+{% extends "iot_app/base.html" %}
+{% block content %}
+
+<div class="header">
+    <div class="return">
+        <a href="{% url 'iot' %}" style="color:black" >戻る</a>
+    </div>
+</div>
+
+<form action="" method="post" style="padding:2px 20px 20px 20px">
+    {% csrf_token %}
+    <p class="delete">本当にアカウントを削除してよろしいですか？</p>
+    <p>※デバイスとその過去履歴も削除されます。</p>
+    <input type="submit" value="削除">
+</form>
+
+{% endblock content %}
