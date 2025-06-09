@@ -283,8 +283,6 @@ Resources:
         DockerTag: v1
         DockerContext: ./
         Dockerfile: Dockerfile
-        DockerBuildArgs:
-          DJANGO_DEBUG: "true"
 
 Outputs:
     IoTAppFunctionUrlEndpoint:
