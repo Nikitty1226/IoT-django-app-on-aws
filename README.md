@@ -51,8 +51,7 @@ A serverless Django backend for visualizing door sensor (open/close) status, pow
 ## Quick Start (Local Dev)
 ```
 git clone https://github.com/yourname/IoT-django-app-on-aws.git
-docker-compose up 
-docker-compose exec app python manage.py makemigrations
+docker-compose up -d
 docker-compose exec app python manage.py migrate
 ```
 Then open:
