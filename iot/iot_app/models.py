@@ -1,13 +1,13 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator, MaxValueValidator
-import random
+import secrets
 import string
 
 
 def generate_device_id(length=6):
     chars = string.ascii_letters + string.digits
-    return "dev_" + "".join(random.choices(chars, k=length))
+    return "dev_" + "".join(secrets.choice(chars) for _ in range(length))
 
 
 class Iot_detail(models.Model):
