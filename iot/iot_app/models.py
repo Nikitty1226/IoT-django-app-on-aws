@@ -10,7 +10,7 @@ def generate_device_id(length=6):
     return "dev_" + "".join(random.choices(chars, k=length))
 
 
-class iot_detail(models.Model):
+class Iot_detail(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     device_name = models.CharField("名称", max_length=50)
     device_id = models.CharField(
@@ -33,13 +33,14 @@ class iot_detail(models.Model):
         return self.device_name
 
     class Meta:
+        db_table = "Iot_detail"
         verbose_name = "デバイス"
         verbose_name_plural = "デバイス一覧"
 
 
-class OpenCloseLog(models.Model):
+class Opencloselog(models.Model):
     device = models.ForeignKey(
-        iot_detail, on_delete=models.CASCADE, related_name="openclose_logs"
+        Iot_detail, on_delete=models.CASCADE, related_name="openclose_logs"
     )
     openclose_timestamp = models.DateTimeField("開閉時刻")
     status = models.CharField(
@@ -47,6 +48,7 @@ class OpenCloseLog(models.Model):
     )
 
     class Meta:
+        db_table = "Opencloselog"
         ordering = ["-openclose_timestamp"]
         verbose_name = "ドア開閉履歴"
         verbose_name_plural = "ドア開閉履歴"
@@ -54,7 +56,7 @@ class OpenCloseLog(models.Model):
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
 
-        logs = OpenCloseLog.objects.filter(device=self.device).order_by(
+        logs = Opencloselog.objects.filter(device=self.device).order_by(
             "-openclose_timestamp"
         )
         if logs.count() > 10:

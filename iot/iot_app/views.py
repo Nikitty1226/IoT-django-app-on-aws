@@ -1,4 +1,4 @@
-from iot_app.models import iot_detail
+from iot_app.models import Iot_detail
 from django.contrib.auth.models import User
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView
@@ -21,7 +21,7 @@ class IoTList(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["device"] = iot_detail.objects.filter(user=self.request.user).first()
+        context["device"] = Iot_detail.objects.filter(user=self.request.user).first()
 
         if context["device"]:
             now_time = now()
@@ -59,7 +59,7 @@ class IoTList(LoginRequiredMixin, TemplateView):
 
 @method_decorator(never_cache, name="dispatch")
 class IoTCreate(LoginRequiredMixin, CreateView):
-    model = iot_detail
+    model = Iot_detail
     fields = ["device_name", "device_id", "device_description"]
     success_url = reverse_lazy("iot")
     template_name = "iot_app/iot_form.html"
@@ -77,7 +77,7 @@ class IoTCreate(LoginRequiredMixin, CreateView):
 
 @method_decorator(never_cache, name="dispatch")
 class IoTUpdate(LoginRequiredMixin, UpdateView):
-    model = iot_detail
+    model = Iot_detail
     fields = ["device_name", "device_id", "device_description"]
     success_url = reverse_lazy("iot")
     template_name = "iot_app/iot_form.html"
@@ -93,24 +93,24 @@ class IoTUpdate(LoginRequiredMixin, UpdateView):
         return context
 
     def get_object(self):
-        return iot_detail.objects.filter(user=self.request.user).first()
+        return Iot_detail.objects.filter(user=self.request.user).first()
 
 
 @method_decorator(never_cache, name="dispatch")
 class IoTDelete(LoginRequiredMixin, DeleteView):
-    model = iot_detail
+    model = Iot_detail
     fields = "__all__"
     success_url = reverse_lazy("iot")
     template_name = "iot_app/iot_delete.html"
     context_object_name = "iot_detail"
 
     def get_object(self):
-        return iot_detail.objects.filter(user=self.request.user).first()
+        return Iot_detail.objects.filter(user=self.request.user).first()
 
 
 @method_decorator(never_cache, name="dispatch")
 class TimeEdit(LoginRequiredMixin, UpdateView):
-    model = iot_detail
+    model = Iot_detail
     fields = ["threshold_notopen_hours", "threshold_heartbeat_hours"]
     success_url = reverse_lazy("iot")
     template_name = "iot_app/iot_form.html"
@@ -126,7 +126,7 @@ class TimeEdit(LoginRequiredMixin, UpdateView):
         return context
 
     def get_object(self):
-        return iot_detail.objects.filter(user=self.request.user).first()
+        return Iot_detail.objects.filter(user=self.request.user).first()
 
 
 @method_decorator(never_cache, name="dispatch")

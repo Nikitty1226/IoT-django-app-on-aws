@@ -24,7 +24,7 @@ RUN $HOME/.local/bin/poetry export -f requirements.txt --output requirements.txt
 FROM python:3.9-slim-buster
 
 WORKDIR /var/task
-COPY --from=public.ecr.aws/awsguru/aws-lambda-adapter:0.6.4 /lambda-adapter /opt/extensions/lambda-adapter
+COPY --from=public.ecr.aws/awsguru/aws-lambda-adapter:0.7.0 /lambda-adapter /opt/extensions/lambda-adapter
 # COPY extension.zip extension.zip
 # RUN apt-get update && apt-get install -y unzip \
 #   && unzip extension.zip -d /opt \

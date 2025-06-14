@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import iot_detail, OpenCloseLog
+from .models import Iot_detail, Opencloselog
 
-admin.site.register(iot_detail)
-admin.site.register(OpenCloseLog)
+admin.site.register(Iot_detail)
+admin.site.register(Opencloselog)

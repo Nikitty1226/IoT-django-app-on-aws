@@ -31,13 +31,13 @@ Resources:
       Tags:
         - Key: Name
           Value: django VPC
-  # EIP:
-  #   Type: AWS::EC2::EIP
-  # NATGateway:
-  #   Type: AWS::EC2::NatGateway
-  #   Properties:
-  #     SubnetId: !Ref PublicSubnet1
-  #     AllocationId: !GetAtt EIP.AllocationId
+  EIP:
+    Type: AWS::EC2::EIP
+  NATGateway:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      SubnetId: !Ref PublicSubnet1
+      AllocationId: !GetAtt EIP.AllocationId
 
   InternetGateway:
     Type: AWS::EC2::InternetGateway
@@ -95,12 +95,12 @@ Resources:
     Properties:
       VpcId: !Ref VPC
   
-  # PrivateRoute:
-  #   Type: AWS::EC2::Route
-  #   Properties:
-  #     RouteTableId: !Ref PrivateRouteTable
-  #     DestinationCidrBlock: 0.0.0.0/0
-  #     NatGatewayId: !Ref NATGateway
+  PrivateRoute:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref NATGateway
 
 
   PrivateSubnet1RouteTableAssociation:
@@ -270,6 +270,7 @@ Resources:
                   - !Ref DJangoSecretKey
         Environment:
             Variables:
+              PORT: 8000
               DB_HOST: !GetAtt RDSInstance.Endpoint.Address
               DB_NAME: django
               DB_USER: !Ref dbUserName
@@ -283,6 +284,45 @@ Resources:
         DockerTag: v1
         DockerContext: ./
         Dockerfile: Dockerfile
+
+  IoTDataFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: IoTDataFunction
+      CodeUri: iot_data_lambda/
+      Handler: iot_data_lambda.lambda_handler
+      Runtime: python3.9
+      MemorySize: 256
+      Timeout: 30
+      Events:
+        IoTRule:
+          Type: IoTRule
+          Properties:
+            AwsIotSqlVersion: "2016-03-23"
+            Sql: "SELECT *, topic() as topic FROM 'sensor/#'"
+      VpcConfig:
+        SecurityGroupIds:
+          - !Ref DjangoLambdaSecurityGroup
+        SubnetIds:
+          - !Ref PrivateSubnet1
+          - !Ref PrivateSubnet2
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - secretsmanager:GetSecretValue
+              Resource:
+                - !Ref DBCredentials
+            - Effect: Allow
+              Action:
+                - sns:Publish
+              Resource: !Sub arn:aws:sns:${AWS::Region}:${AWS::AccountId}:*
+      Environment:
+        Variables:
+          DB_HOST: !GetAtt RDSInstance.Endpoint.Address
+          DB_NAME: django
+          DB_USER: !Ref dbUserName
+          SSM_PASSWORD_NAME: !Ref DBCredentials
 
 Outputs:
     IoTAppFunctionUrlEndpoint:
