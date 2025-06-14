@@ -8,7 +8,6 @@ import iot_app.models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -17,36 +16,110 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Iot_detail',
+            name="Iot_detail",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('device_name', models.CharField(max_length=50, verbose_name='名称')),
-                ('device_id', models.CharField(default=iot_app.models.generate_device_id, max_length=25, unique=True, verbose_name='ID')),
-                ('device_description', models.TextField(blank=True, max_length=100, null=True, verbose_name='詳細')),
-                ('threshold_notopen_hours', models.PositiveIntegerField(default=24, validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(1000)], verbose_name='未開閉アラート表示（時間）')),
-                ('threshold_heartbeat_hours', models.PositiveIntegerField(default=1, validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(1000)], verbose_name='死活監視アラート表示（時間）')),
-                ('heartbeat_timestamp', models.DateTimeField(blank=True, null=True, verbose_name='最終更新時刻')),
-                ('user', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("device_name", models.CharField(max_length=50, verbose_name="名称")),
+                (
+                    "device_id",
+                    models.CharField(
+                        default=iot_app.models.generate_device_id,
+                        max_length=25,
+                        unique=True,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "device_description",
+                    models.TextField(
+                        blank=True, max_length=100, null=True, verbose_name="詳細"
+                    ),
+                ),
+                (
+                    "threshold_notopen_hours",
+                    models.PositiveIntegerField(
+                        default=24,
+                        validators=[
+                            django.core.validators.MinValueValidator(1),
+                            django.core.validators.MaxValueValidator(1000),
+                        ],
+                        verbose_name="未開閉アラート表示（時間）",
+                    ),
+                ),
+                (
+                    "threshold_heartbeat_hours",
+                    models.PositiveIntegerField(
+                        default=1,
+                        validators=[
+                            django.core.validators.MinValueValidator(1),
+                            django.core.validators.MaxValueValidator(1000),
+                        ],
+                        verbose_name="死活監視アラート表示（時間）",
+                    ),
+                ),
+                (
+                    "heartbeat_timestamp",
+                    models.DateTimeField(blank=True, null=True, verbose_name="最終更新時刻"),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'デバイス',
-                'verbose_name_plural': 'デバイス一覧',
-                'db_table': 'Iot_detail',
+                "verbose_name": "デバイス",
+                "verbose_name_plural": "デバイス一覧",
+                "db_table": "Iot_detail",
             },
         ),
         migrations.CreateModel(
-            name='Opencloselog',
+            name="Opencloselog",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('openclose_timestamp', models.DateTimeField(verbose_name='開閉時刻')),
-                ('status', models.CharField(choices=[('open', '開'), ('close', '閉')], max_length=10, verbose_name='状態')),
-                ('device', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='openclose_logs', to='iot_app.iot_detail')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("openclose_timestamp", models.DateTimeField(verbose_name="開閉時刻")),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[("open", "開"), ("close", "閉")],
+                        max_length=10,
+                        verbose_name="状態",
+                    ),
+                ),
+                (
+                    "device",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="openclose_logs",
+                        to="iot_app.iot_detail",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'ドア開閉履歴',
-                'verbose_name_plural': 'ドア開閉履歴',
-                'db_table': 'Opencloselog',
-                'ordering': ['-openclose_timestamp'],
+                "verbose_name": "ドア開閉履歴",
+                "verbose_name_plural": "ドア開閉履歴",
+                "db_table": "Opencloselog",
+                "ordering": ["-openclose_timestamp"],
             },
         ),
     ]
