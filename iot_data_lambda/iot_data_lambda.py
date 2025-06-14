@@ -1,10 +1,15 @@
 import os
 from datetime import datetime
+import logging
 import boto3
 import pg8000
 from aws_lambda_powertools.utilities import parameters
 
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+
 def lambda_handler(event, context):
+
     try:
         status = event["status"]
         device_id = event["topic"].split("/")[-1]
@@ -12,9 +17,10 @@ def lambda_handler(event, context):
         region = os.environ["AWS_REGION"]
         account_id = boto3.client("sts").get_caller_identity()["Account"]
 
-        print(f"[INFO] Receive message:{event}")
+        logger.info(f"Receive message: {event}")
     
     except Exception as e:
+        logger.error(f"Fail to receive message: {event} - Error: {e}")
         return {"statusCode": 500, "error": str(e)}
 
     conn = None
@@ -30,38 +36,31 @@ def lambda_handler(event, context):
         )
 
         cursor = conn.cursor()
+
+        cursor.execute("""SELECT id FROM "Iot_detail" WHERE device_id = %s""", (device_id,))
+        device_pk = cursor.fetchone()
         
-        print(f"[DEBUG] Running SELECT for device_id: {device_id}")
-        cursor.execute("SELECT 1")
-        result = cursor.fetchone()
-        print(f"[DEBUG] Simple fetch result: {result}")
+        if device_pk is None:
+            logger.warning(f"device_id '{device_id}' not found in DB")
+        else:
+            if status == "heartbeat":
+                cursor.execute("""
+                    UPDATE "Iot_detail"
+                    SET heartbeat_timestamp = %s
+                    WHERE id = %s
+                """, (timestamp, device_pk[0]))
 
-        cursor.execute("SELECT 1 FROM Iot_detail WHERE device_id = %s", (device_id,))
-        result = cursor.fetchone()
-        print(f"[DEBUG] fetchone() result: {result}")
+            elif status in ["open", "close"]:
+                cursor.execute("""
+                    INSERT INTO "Opencloselog" (device_id, openclose_timestamp, status)
+                    VALUES (%s, %s, %s)
+                """, (device_pk[0], timestamp, status))
 
-        if status == "heartbeat":
-            print(f"[DEBUG] Attempting heartbeat update for device_id: {device_id}")
-            cursor.execute("""
-                UPDATE Iot_detail
-                SET heartbeat_timestamp = %s
-                WHERE device_id = %s
-            """, (timestamp, device_id))
-            print(f"[DEBUG] Rows affected: {cursor.rowcount}")
-            print("[DEBUG] Executed UPDATE for heartbeat")
+            conn.commit()
+            logger.info(f"Success to insert data: {event}")
 
-        elif status in ["open", "close"]:
-            cursor.execute("""
-                INSERT INTO Opencloselog (device_id, openclose_timestamp, status)
-                VALUES (%s, %s, %s)
-            """, (device_id, timestamp, status))
-            print("[DEBUG] Executed INSERT for open/close")
-
-        conn.commit()
-
-        print(f"[INFO] Success to insert data:{event}")
-    
     except Exception as e:
+        logger.error(f"Fail to insert data: {event} - Error: {e}")
         return {"statusCode": 500, "error": str(e)}
 
     finally:
@@ -70,7 +69,6 @@ def lambda_handler(event, context):
 
     try:
         sns = boto3.client('sns')
-
         topic_arn = f"arn:aws:sns:{region}:{account_id}:{device_id}"
 
         if status in ["open", "close"]:
@@ -85,13 +83,14 @@ def lambda_handler(event, context):
                 Message = message
             )
 
-            print(f"[INFO] Success to send message:{message}")
+            logger.info(f"Success to send message: {message}")
         
     except sns.exceptions.NotFoundException:
-        print(f"[WARN] No SNS Topic: {topic_arn}")
+        logger.warning(f"No SNS Topic: {topic_arn}")
 
     except Exception as e:
+        logger.error(f"Fail to send message: {event} - Error: {e}")
         return {"statusCode": 500, "error": str(e)}
 
-    print(f"[INFO] Event Successfully message:{event}")
-    return {"statusCode": 200, "body": f"Event Successfully:{event}"}
+    logger.info(f"Event Successfully. Payload:{event}")
+    return {"statusCode": 200, "body": f"Event Successfully. Payload:{event}"}

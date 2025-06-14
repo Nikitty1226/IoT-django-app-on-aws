@@ -292,8 +292,8 @@ Resources:
       CodeUri: iot_data_lambda/
       Handler: iot_data_lambda.lambda_handler
       Runtime: python3.9
-      MemorySize: 256
-      Timeout: 30
+      MemorySize: 128
+      Timeout: 10
       Events:
         IoTRule:
           Type: IoTRule
