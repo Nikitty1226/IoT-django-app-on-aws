@@ -5,9 +5,9 @@ import boto3
 import pg8000
 from aws_lambda_powertools.utilities import parameters
 
+
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
-
 
 def lambda_handler(event, context):
     try:
@@ -57,6 +57,14 @@ def lambda_handler(event, context):
                 )
 
             elif status in ["open", "close"]:
+                cursor.execute(
+                    """
+                    UPDATE "Iot_detail"
+                    SET heartbeat_timestamp = %s
+                    WHERE id = %s
+                """,
+                    (timestamp, device_pk[0]),
+                )
                 cursor.execute(
                     """
                     INSERT INTO "Opencloselog" (device_id, openclose_timestamp, status)
