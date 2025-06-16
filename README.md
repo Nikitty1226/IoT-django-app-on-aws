@@ -1,14 +1,14 @@
 # IoT Django App on AWS
 
-Raspberry Piで取得したドア開閉センサーデータを、MQTTを通じてAWS Lambdaへ送信し、Django + RDS(PostgreSQL)で可視化するIoTシステムです。AWS SAMとDockerを活用し、サーバーレス構成で運用可能です。
+Raspberry Piで取得したドア開閉センサーデータを、MQTTを通じてAWS Lambdaへ送信し、Django + RDS(PostgreSQL)で可視化するIoTシステムです。<br>
+AWS SAMとDockerを活用し、サーバーレス構成で運用可能です。
 
 > ⚠️ 本プロジェクトについて<br>
-このリポジトリは、[@fun-with-serverless](https://github.com/fun-with-serverless) 氏の  
-[serverless-django](https://github.com/fun-with-serverless/serverless-django) を参考に、自身の学習・ポートフォリオ目的で構築・改修したものです。
+このリポジトリは、[@fun-with-serverless](https://github.com/fun-with-serverless) 氏の [serverless-django](https://github.com/fun-with-serverless/serverless-django) を参考に、自身の学習・ポートフォリオ目的で構築・改修したものです。<br>
 MITライセンスに基づいて改変・公開しています。  詳細は [`LICENSE`](LICENSE) をご確認ください。
 
 
-## 想定ユースケース： 「見守りドアセンサー（遠隔ドア監視システム）」
+## 想定ユースケース： 「見守りドアセンサー」（遠隔ドア監視システム）
 
 - 倉庫・プラント・自宅のドアの開閉状況を常時記録
 - ドアの開閉時にメール通知を行うほか、通信断を死活監視
@@ -26,7 +26,7 @@ MITライセンスに基づいて改変・公開しています。  詳細は [`
 - **センサーデバイス**：Raspberry Pi の GPIO でドアの開閉を検知
 - **通信**：MQTT を通じて AWS IoT Core に送信
 - **処理**：AWS Lambda がメッセージを受信し、RDS（PostgreSQL）に保存
-- **可視化**：Django の管理画面から開閉履歴や現在の状態を確認
+- **可視化**：Djangoから開閉履歴や現在の状態を確認
 - **ユーザー管理**：Djangoでユーザーごとにデバイスの登録・管理が可能 
 - **インフラ構築**：AWS SAM によるサーバーレスデプロイ
 
@@ -100,13 +100,13 @@ sam deploy --guided
 ```
 
 
-## ⚠️ クラウド利用時の注意点
+## クラウド利用時の注意点
 
 このプロジェクトをAWS上で実際に利用するには、以下の構成要素について**手動設定が必要**です：
 
 - **IoT Core での「モノ（Thing）」 ・証明書の発行とアタッチ**  
   デバイスごとに証明書を作成し、適切なポリシーを割り当ててください。  
-  ※ 証明書ファイルはデバイスに埋め込む必要があります。詳細は以下のリポジトリを参照してください： [DoorSensorDevice（Raspberry Pi用スクリプト）](https://github.com/yourname/DoorSensorDevice)
+  ※ 証明書ファイルはデバイスに埋め込む必要があります。詳細は以下のリポジトリを参照してください： [DoorSensorDevice（Raspberry Pi用スクリプト）](https://github.com/Nikitty1226/DoorSensorDevice)
 
 - **MQTT のトピック設計に関するルール**  
   デバイスから送信するMQTTトピックには、**sensor/GUI上で設定したデバイスID**で設定する必要があります。  
@@ -114,8 +114,7 @@ sam deploy --guided
 
 - **SNS トピックとサブスクリプションの作成**  
   メール通知を利用する場合は、SNSトピックを作成し、メールアドレスを購読者として登録・確認してください。  
-  トピック名は、**SNSトピック名 = デバイスID** としてください。
-  ※ Lambda関数内でトピック名とデバイス名を照合しているため
+  またトピック名は、**SNSトピック名 = デバイスID** としてください。※ Lambda関数内でトピック名とデバイス名を照合しているため
 
 
 ## 引用元プロジェクト/ライセンス
@@ -135,11 +134,11 @@ IoT技術者／クラウドアプリエンジニア志望<br>
 GitHub: [@Nikitty1226](https://github.com/Nikitty1226)
 
 
-## 補足：関連リポジトリ
+### 補足：関連リポジトリ
 
 デバイス（Raspberry Pi）で動作するセンサースクリプトは、以下の別リポジトリにて管理しています：
 
-- [DoorSensorDevice (Raspberry Pi用スクリプト)](https://github.com/yourname/DoorSensorDevice)
+- [DoorSensorDevice (Raspberry Pi用スクリプト)](https://github.com/Nikitty1226/DoorSensorDevice)
 
 このスクリプトでは以下を実装しています：
 
