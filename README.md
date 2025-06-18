@@ -55,7 +55,7 @@ MITライセンスに基づいて改変・公開しています。  詳細は [`
 以下の手順でローカル環境を立ち上げることができます：
 
 ```bash
-git clone https://github.com/yourname/IoT-django-app-on-aws.git
+git clone https://github.com/Nikitty1226/IoT-django-app-on-aws.git
 cd IoT-django-app-on-aws
 docker-compose up -d
 docker-compose exec app python manage.py migrate
