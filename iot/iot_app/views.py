@@ -99,7 +99,6 @@ class IoTUpdate(LoginRequiredMixin, UpdateView):
 @method_decorator(never_cache, name="dispatch")
 class IoTDelete(LoginRequiredMixin, DeleteView):
     model = Iot_detail
-    fields = "__all__"
     success_url = reverse_lazy("iot")
     template_name = "iot_app/iot_delete.html"
     context_object_name = "iot_detail"
@@ -131,7 +130,6 @@ class TimeEdit(LoginRequiredMixin, UpdateView):
 
 @method_decorator(never_cache, name="dispatch")
 class IoTListLogin(LoginView):
-    fields = "__all__"
     template_name = "iot_app/login.html"
 
     def get_success_url(self):
