@@ -1,0 +1,122 @@
+{% extends "iot_app/base.html" %}
+{% block content %}
+
+<div class="header">
+    <h1>見守りドアセンサー</h1>
+</div>
+
+<div class="top">
+    <div class="user">
+        <p class="break-word">{{request.user}}でログイン中</p>
+    </div>
+
+    <div class="reload">
+        <button onclick="location.reload()">更新</button>
+    </div>
+</div>
+
+<div class="opendoortime">
+   <div class="timeeditheader">
+        <h3>最新のドア開閉時刻</h3>
+        {% if device %}
+            <a href="{% url 'time-edit' %}" class="EditButton">&#x270f;</a>
+        {% endif %}
+    </div>
+
+    {% if device %}
+        {% if openclose_exist %}
+            <h2>{{ latest_log.openclose_timestamp|date:"Y-m-d H:i:s" }} ー {{ latest_log.get_status_display }}</h2>
+            {% if openclose_ok %}
+                <p class="status normal">🟢 正常</p>
+            {% else %}
+                <p class="status alert">❗ 異常―{{ device.threshold_notopen_hours }}時間以上開いていません</p>
+            {% endif %}
+        {% else %}
+            <h3>ー</h3>
+            <p class="status alert">❗ 異常―データがありません</p>
+        {% endif %}
+    {% else %}
+        <h3>ー</h3>
+        <p class="status alert">❗ 異常―デバイス未登録です</p>
+    {% endif %}
+</div>
+
+<div class="sensorheader">
+  <div class="sensordetail">
+    <div class="sensordetailheader">
+        <h3>デバイス詳細</h3>
+        {% if device %}
+            <div>
+                <a href="{% url 'edit-iot' %}" class="EditButton">&#x270f;</a>
+                <a href="{% url 'delete-iot' %}" class="DeleteButton">×</a>
+            </div>
+        {% else %}
+            <div>
+                <a href="{% url 'create-iot' %}" class="AddButton">＋</a>
+            </div>
+        {% endif %}
+    </div>   
+
+    <div> 
+        {% if device %}
+            <div>
+                <p class="break-word"> 名称：{{ device.device_name }} </p>
+                <p class="break-word"> ID：{{ device.device_id }} </p>
+                <p class="break-word"> 詳細：{{ device.device_description }} </p>
+            </div>
+        {% else %}
+            <div>
+                <p> デバイスがありません </p>
+            </div>
+        {% endif %}
+    </div>
+  </div>
+
+  <div class="sensorping">
+    <div class="timeeditheader">
+        <h3>最終更新時刻</h3>
+        {% if device %}
+            <a href="{% url 'time-edit' %}" class="EditButton">&#x270f;</a>
+        {% endif %}
+    </div>
+
+    {% if device %}
+        {% if heartbeat_exist %}
+            <h2>{{ device.heartbeat_timestamp|date:"Y-m-d H:i:s" }}</h2>
+            {% if heartbeat_ok %}
+                <p class="status normal">🟢 正常</p>
+            {% else %}
+                <p class="status alert">❗ 異常―{{ device.threshold_heartbeat_hours }}時間以上データが来ていません</p>
+            {% endif %}
+        {% else %}
+            <h3>ー</h3>
+            <p class="status alert">❗ 異常―データがありません</p>
+        {% endif %}
+    {% else %}
+        <h3>ー</h3>
+        <p class="status alert">❗ 異常―デバイス未登録です</p>
+    {% endif %}
+  </div>
+</div>
+
+<div class="opencloselogs">
+    <h3>ドア開閉履歴</h3>
+    {% if openclose_logs %}
+        {% for log in openclose_logs %}
+            <p>{{ log.openclose_timestamp|date:"Y-m-d H:i:s" }} ー {{ log.get_status_display }}</p>
+        {% endfor %}
+    {% else %}
+        <p>履歴データがありません</p>
+    {% endif %}
+</div>
+
+<div class="LoginAndLogout">
+    <form action="{% url 'logout' %}" method="POST">
+        {% csrf_token %}
+        <input type="submit" value="ログアウト">
+    </form>
+    <a href="{% url 'account-delete' %}" class="delete">アカウント削除</a>
+</div>
+
+
+{% endblock content %}

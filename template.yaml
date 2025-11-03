@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: >
-  Polls application resources
+  IoT application resources
   
 Parameters:
   dbUserName:
@@ -10,14 +10,19 @@ Parameters:
     Default: root
   bastionAMI:
     Type: String
-    Default: ami-037843ed9009f7d41
+    Default: ami-0545f1f3be5ea1017
   keyPair:
     Type: String
     Default: MyPrivateKey
+  FunctionURL:
+    Type: String
+    Default: yourfunctionid.lambda-url.ap-northeast-1.on.aws
+  GlobalIP:
+    Type: String
+    Default: 0.0.0.0/0
 
 Globals:
   Function:
-    Timeout: 150
     Tags:
       'lumigo:auto-trace': 'true'
     
@@ -34,6 +39,8 @@ Resources:
           Value: django VPC
   EIP:
     Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
   NATGateway:
     Type: AWS::EC2::NatGateway
     Properties:
@@ -84,7 +91,7 @@ Resources:
         - IpProtocol: tcp
           FromPort: 22
           ToPort: 22
-          CidrIp: 0.0.0.0/0
+          CidrIp: !Ref GlobalIP
   
   PublicRouteTable:
     Type: AWS::EC2::RouteTable
@@ -139,6 +146,7 @@ Resources:
           Value: django Bastion
       ImageId: !Ref bastionAMI
       InstanceType: t2.micro
+      IamInstanceProfile: !Ref InstanceProfile
       UserData:
         'Fn::Base64': !Sub |
           #!/bin/bash
@@ -153,6 +161,33 @@ Resources:
       SubnetId: !Ref PublicSubnet1
       KeyName: !Ref keyPair
     DependsOn: RDSInstance
+
+  InstanceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ec2.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: SecretsManagerAccessPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - secretsmanager:GetSecretValue
+                Resource: 
+                  - !Ref DJangoSecretKey
+                  - !Ref DBCredentials
+  InstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles:
+        - !Ref InstanceRole
       
   # RDS related resources
   RDSSecurityGroup:
@@ -164,7 +199,11 @@ Resources:
         - IpProtocol: tcp
           FromPort: 5432
           ToPort: 5432
-          CidrIp: 0.0.0.0/0
+          SourceSecurityGroupId: !Ref DjangoLambdaSecurityGroup
+        - IpProtocol: tcp
+          FromPort: 5432
+          ToPort: 5432
+          SourceSecurityGroupId: !Ref BastionSecurityGroup
   RDSInstance:
     Type: AWS::RDS::DBInstance
     Properties:
@@ -177,6 +216,7 @@ Resources:
       VPCSecurityGroups:
         - !Ref RDSSecurityGroup
       DBSubnetGroupName: !Ref DBSubnetGroup
+      #MultiAZ: true
   DBSubnetGroup:
     Type: AWS::RDS::DBSubnetGroup
     Properties:
@@ -209,15 +249,20 @@ Resources:
       SecurityGroupIngress: []
       SecurityGroupEgress:
         - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
           CidrIp: 0.0.0.0/0
-          FromPort: 80
+        - IpProtocol: tcp
+          FromPort: 5432
           ToPort: 5432
+          CidrIp: 0.0.0.0/0
 
-  PollsApp:
+  IoTApp:
     Type: AWS::Serverless::Function
     Properties:
         PackageType: Image
         MemorySize: 1024
+        Timeout: 300
         VpcConfig:
           SecurityGroupIds:
             - !Ref DjangoLambdaSecurityGroup
@@ -225,27 +270,73 @@ Resources:
             - !Ref PrivateSubnet1
             - !Ref PrivateSubnet2
         Policies:
-          - AWSSecretsManagerGetSecretValuePolicy:
-              SecretArn: !Ref DBCredentials
+          - Statement:
+              - Effect: Allow
+                Action:
+                  - secretsmanager:GetSecretValue
+                Resource:
+                  - !Ref DBCredentials
+                  - !Ref DJangoSecretKey
         Environment:
             Variables:
               PORT: 8000
               DB_HOST: !GetAtt RDSInstance.Endpoint.Address
+              DB_NAME: django
+              DB_USER: !Ref dbUserName
               SSM_PASSWORD_NAME: !Ref DBCredentials
               DJANGO_SECRET_KEY: !Ref DJangoSecretKey
               DJANGO_DEBUG: "False"
-              DB_USER: !Ref dbUserName
+              DJANGO_ALLOWED_HOSTS: !Ref FunctionURL
         FunctionUrlConfig:
             AuthType: NONE
     Metadata:
         DockerTag: v1
         DockerContext: ./
         Dockerfile: Dockerfile
-        
+
+  IoTDataFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: IoTDataFunction
+      CodeUri: iot_data_lambda/
+      Handler: iot_data_lambda.lambda_handler
+      Runtime: python3.10
+      MemorySize: 128
+      Timeout: 10
+      Events:
+        IoTRule:
+          Type: IoTRule
+          Properties:
+            AwsIotSqlVersion: "2016-03-23"
+            Sql: "SELECT *, topic() as topic FROM 'sensor/#'"
+      VpcConfig:
+        SecurityGroupIds:
+          - !Ref DjangoLambdaSecurityGroup
+        SubnetIds:
+          - !Ref PrivateSubnet1
+          - !Ref PrivateSubnet2
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - secretsmanager:GetSecretValue
+              Resource:
+                - !Ref DBCredentials
+            - Effect: Allow
+              Action:
+                - sns:Publish
+              Resource: !Sub arn:aws:sns:${AWS::Region}:${AWS::AccountId}:*
+      Environment:
+        Variables:
+          DB_HOST: !GetAtt RDSInstance.Endpoint.Address
+          DB_NAME: django
+          DB_USER: !Ref dbUserName
+          SSM_PASSWORD_NAME: !Ref DBCredentials
+
 Outputs:
-    PollsAppFunctionUrlEndpoint:
-      Description: "Polls Function URL Endpoint"
-      Value: !GetAtt PollsAppUrl.FunctionUrl
+    IoTAppFunctionUrlEndpoint:
+      Description: "IoT Function URL Endpoint"
+      Value: !GetAtt IoTAppUrl.FunctionUrl
     BastionPublicDns:
       Description: The public DNS of the bastion host
       Value: !GetAtt BastionHost.PublicDnsName

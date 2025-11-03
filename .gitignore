@@ -132,5 +132,12 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-#django
-polls/static/
+# django
+iot/static/
+
+# VS Code settings
+.vscode/
+
+# iot_data_lambda
+iot_data_lambda/*
+!iot_data_lambda/iot_data_lambda.py

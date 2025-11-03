@@ -1,18 +1,17 @@
 [tool.poetry]
-name = "serverless-django"
+name = "iot-app"
 version = "0.1.0"
 description = "Using the Lambda Web Adapter with a Django application"
-authors = ["Efi MK <efi.merdler@gmail.com>"]
 license = "Apache License Version 2.0, January 2004"
 readme = "README.md"
+authors = ["Masayoshi Niki <anon@example.com>"]
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "^3.10"
 django = "^4.2"
 gunicorn = "^20.1.0"
 whitenoise = "^6.4.0"
 psycopg2-binary = "^2.9.6"
-urllib3 = "<2.0"
 aws-lambda-powertools = {extras = ["aws-sdk"], version = "^2.12.0"}
 
 [tool.poe.tasks]
@@ -20,10 +19,8 @@ black = "black ."
 black_ci = "black --check ."
 lint = "ruff --fix ."
 lint_ci = "ruff ."
-mypy = {shell = "cd polls && mypy ."}
-bandit = "bandit -r polls -b bandit-baseline.json"
-run-server = {shell = "cd polls && python manage.py runserver"}
-run-production = {shell = "gunicorn polls.wsgi:application --bind 0.0.0.0:8000"}
+mypy = {shell = "cd iot && mypy ."}
+bandit = "bandit -r iot -b bandit-baseline.json"
 gate = ["black", "lint", "mypy", "bandit"]
 
 
@@ -45,7 +42,7 @@ ignore = ["E501"]
 [tool.mypy]
 plugins = ["mypy_django_plugin.main"]
 [tool.django-stubs]
-django_settings_module = "polls.polls.settings"
+django_settings_module = "iot.iot.settings"
 
 [build-system]
 requires = ["poetry-core"]

@@ -1,0 +1,46 @@
+{% extends "iot_app/base.html" %}
+{% block content %}
+
+<div class="header">
+    <h1>新規登録</h1>
+</div>
+
+<form action="" method="POST">
+    {% csrf_token %}
+    <div style="margin:20px">
+        {% if form.non_field_errors %}
+            <div>{{ form.non_field_errors }}</div>
+        {% endif %}
+
+        <label for="">ユーザー名</label>
+        {{form.username}}
+        {% if form.username.errors %}
+            <div>{{ form.username.errors }}</div>
+        {% endif %}
+
+        <label for="">パスワード</label>
+        {{form.password1}}
+        {% if form.password1.errors %}
+            <div>{{ form.password1.errors }}</div>
+        {% endif %}
+
+        <label for="">確認用のパスワード</label>
+        {{form.password2}}
+        {% if form.password2.errors %}
+            <div>{{ form.password2.errors }}</div>
+        {% endif %}
+    
+        <br></br>
+        <input type="submit" value="新規登録">
+        
+    </div>
+</form>
+
+<hr>
+
+<div class="AccountWrapper">
+    <p>既にアカウントを持っていますか？</p>
+    <a href="{% url 'login' %}">ログイン</a>
+</div>
+
+{% endblock content %}

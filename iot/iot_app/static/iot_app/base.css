@@ -1,0 +1,155 @@
+body{
+    background: linear-gradient(to bottom right, rgb(149, 212, 254), #ffffff);
+    margin-top : 30px;
+    min-height: 94vh;
+}
+
+.IoTAppWrapper{
+    max-width : 530px;
+    margin : 0 auto;
+    background-color:#ffffff;
+    box-shadow: 12px rgba(17,17,26,0.08);
+    border-radius: 10px;
+}
+
+.header{
+    text-align : center;
+    padding: 10px 0 5px 0;
+    border-radius: 10px 10px 0 0;
+    background: linear-gradient( #84e6ff, #ffffff);
+}  
+
+.header h1{
+    margin : 0px 0px 5px 0px
+}  
+
+.top {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 20px 2px 20px;
+}
+
+.user{
+    text-align : left;
+    padding: 0px 10px;
+    text-decoration: underline;
+}
+
+.user p {
+    margin: 0;
+}
+
+.break-word {
+  word-break: break-all;
+}
+
+.reload{
+    text-align : right;
+} 
+
+.opendoortime {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 0 20px;
+    margin: 10px 20px;
+    line-height: 0.8;
+}
+
+.timeeditheader{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.timeeditheader h3 {
+  margin-bottom: 0;
+}
+
+.status.normal {
+    color: green;
+    font-weight: bold;
+}
+
+.status.alert {
+    color: rgb(240, 50, 50);
+    font-weight: bold;
+}
+
+.sensorheader {
+  display: flex;
+}
+
+.sensordetailheader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sensordetail{
+  flex: 1 1 300px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 0px 10px;
+  margin: 0px 5px 5px 20px;
+  line-height: 1;
+}
+
+.sensorping{
+  flex: 1 1 300px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 0px 10px;
+  margin: 0px 20px 5px 5px;
+  line-height: 1;
+}
+
+.opencloselogs{
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 0 20px;
+    margin: 5px 20px 0px 20px;
+    line-height: 0.8;
+}
+
+.LoginAndLogout{
+    padding :20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.delete {
+    color: #ff0000;
+    text-decoration: underline;
+}
+
+.EditButton, .DeleteButton, .AddButton {
+    font-size: 20px;
+}
+
+.return{
+    text-align: left;
+    margin:15px 15px 15px 20px;
+}
+
+label{
+    display:block;
+}
+
+.AccountWrapper{
+    padding: 10px;
+}
+
+.AccountWrapper p{
+    margin : 0;
+    padding : 0
+}
+
+form div {
+    margin-left: 15px;
+}
+
+.isdevice {
+    text-align: left;
+    margin:15px 15px 15px 20px;
+}

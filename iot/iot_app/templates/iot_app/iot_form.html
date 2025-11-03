@@ -1,0 +1,28 @@
+{% extends "iot_app/base.html" %}
+{% block content %}
+
+<div class="header">
+    <div class="return">
+        <a href="{% url 'iot' %}" style="color:black" >戻る</a>
+    </div>
+</div>
+
+{% if is_update and not iot_detail %}
+    <div class="isdevice">
+        <p>編集対象のデバイスが存在しません。</p>
+        <br>
+    </div>
+{% elif not is_update and iot_detail %}
+    <div class="isdevice">
+        <p>既にデバイスが存在します。</p>
+        <br>
+    </div>
+{% else %}
+  <form action="" method="POST" style="padding:2px 20px 20px 20px"> 
+      {% csrf_token %}
+      {{ form.as_p }}
+      <input type="submit" value="OK">
+  </form>
+{% endif %}
+
+{% endblock content %}
